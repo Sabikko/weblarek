@@ -1,4 +1,4 @@
-import { IApi, IProduct, IOrderRequest, IOrderResponse } from "../../../types";
+import { IApi, IProduct, IOrderRequest, IOrderResponse } from "../../types";
 
 export class ApiClient {
   protected api: IApi;
@@ -9,7 +9,7 @@ export class ApiClient {
 
   getProducts(): Promise<IProduct[]> {
     return this.api
-      .get<{ items: IProduct[] }>('/product/')
+      .get<{ items: IProduct[]; total: number }>('/product/')
       .then((data) => data.items);
   }
 

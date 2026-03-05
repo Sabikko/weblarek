@@ -1,4 +1,4 @@
-import { IBuyer, TPayment } from "../../../types";
+import { IBuyer, TPayment } from "../../types";
 
 type BuyerErrors = Partial<Record<keyof IBuyer, string>>;
 
@@ -8,11 +8,7 @@ export class Buyer {
   protected phone: string = '';
   protected address: string = '';
 
-  constructor(data?: Partial<IBuyer>) {
-    if (data) {
-      this.setData(data);
-    }
-  }
+  constructor() {}
 
   setData(data: Partial<IBuyer>): void {
     if (data.payment !== undefined) {

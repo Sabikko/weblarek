@@ -1,12 +1,10 @@
-import { IProduct } from "../../../types";
+import { IProduct } from "../../types";
 
 export class Products {
     protected products: IProduct[] = [];
     protected previewProduct: IProduct | null = null;
 
-    constructor(products: IProduct[] = []) {
-        this.products = products;
-    }
+    constructor() {}
 
     setProducts(products: IProduct[]): void {
         this.products = products;
@@ -26,5 +24,5 @@ export class Products {
 
     getPreviewProduct(): IProduct | null {
         return this.previewProduct;
-    }
+  }
 }

@@ -2,11 +2,11 @@ import './scss/styles.scss';
 import { API_URL } from './utils/constants';
 import { apiProducts } from './utils/data';
 import { Api } from './components/base/Api';
-import { ApiClient } from './components/base/Models/ApiClient';
+import { ApiClient } from './components/Models/ApiClient';
 
-import { Products } from './components/base/Models/Products';
-import { Basket } from './components/base/Models/Basket';
-import { Buyer } from './components/base/Models/Buyer';
+import { Products } from './components/Models/Products';
+import { Basket } from './components/Models/Basket';
+import { Buyer } from './components/Models/Buyer';
 
 const api = new Api(API_URL);
 const apiClient = new ApiClient(api);
@@ -15,11 +15,19 @@ const apiClient = new ApiClient(api);
 
 const productsModel = new Products();
 
-apiClient.getProducts().then((products) => {
-  productsModel.setProducts(products);
+async function init() {
+  try {
+    const products = await apiClient.getProducts();
 
-  console.log('Каталог товаров с сервера:', productsModel.getProducts());
-});
+    productsModel.setProducts(products);
+
+    console.log('Каталог товаров с сервера:', productsModel.getProducts());
+  } catch (error) {
+    console.error('Ошибка получения товаров:', error);
+  }
+}
+
+init();
 
 // сохраняем товары из тестовых данных
 productsModel.setProducts(apiProducts.items);
