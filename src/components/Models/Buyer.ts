@@ -28,12 +28,7 @@ export class Buyer {
       this.address = data.address;
     }
 
-    this.events.emit('buyer:changed', {
-      payment: this.payment,
-      email: this.email,
-      phone: this.phone,
-      address: this.address,
-    });
+    this.events.emit('buyer:changed');
   }
 
   getData(): IBuyer {

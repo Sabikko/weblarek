@@ -9,8 +9,8 @@ export interface IBasket {
 }
 
 export class BasketView extends Component<IBasket> {
-  protected listElements: HTMLElement;
-  protected totalElements: HTMLElement;
+  protected listElement: HTMLElement;
+  protected totalElement: HTMLElement;
   protected orderButton: HTMLButtonElement;
 
   constructor(
@@ -19,14 +19,16 @@ export class BasketView extends Component<IBasket> {
   ) {
     super(container);
 
-    this.listElements = ensureElement<HTMLElement>(
+    this.listElement = ensureElement<HTMLElement>(
       ".basket__list",
       this.container,
     );
-    this.totalElements = ensureElement<HTMLElement>(
+
+    this.totalElement = ensureElement<HTMLElement>(
       ".basket__price",
       this.container,
     );
+
     this.orderButton = ensureElement<HTMLButtonElement>(
       ".basket__button",
       this.container,
@@ -38,22 +40,14 @@ export class BasketView extends Component<IBasket> {
   }
 
   set items(items: HTMLElement[]) {
-    if (items.length > 0) {
-      this.buttonDisabled = false;
-      this.listElements.replaceChildren(...items);
-    } else {
-      const emptyCart = document.createElement('p');
-      emptyCart.textContent = 'Корзина пуста';
-      this.buttonDisabled = true;
-      this.listElements.replaceChildren(emptyCart);
-    }
-  };
-
-  set total(value: number) {
-    this.totalElements.textContent = `${value} синапсов`;
+    this.listElement.replaceChildren(...items);
   }
 
-  set buttonDisabled(value: boolean) {
+  set total(value: number) {
+    this.totalElement.textContent = `${value} синапсов`;
+  }
+
+  set disabled(value: boolean) {
     this.orderButton.disabled = value;
-  };
+  }
 }

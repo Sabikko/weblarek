@@ -36,11 +36,7 @@ export class FormPayment extends Form<IFormPayment> {
 
   set payment(value: TPayment | null) {
     this.paymentButtons.forEach((button) => {
-      if (button.name === value) {
-        button.classList.add("button_alt-active");
-      } else {
-        button.classList.remove("button_alt-active");
-      }
+      button.classList.toggle("button_alt-active", button.name === value);
     });
   }
 

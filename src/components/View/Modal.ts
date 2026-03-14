@@ -20,18 +20,19 @@ export class Modal extends Component<IModal> {
       ".modal__content",
       this.container,
     );
+
     this.closeButton = ensureElement<HTMLButtonElement>(
       ".modal__close",
       this.container,
     );
 
     this.closeButton.addEventListener("click", () => {
-      this.events.emit("modal:close");
+      this.close();
     });
 
     this.container.addEventListener("click", (event) => {
       if (event.target === this.container) {
-        this.events.emit("modal:close");
+        this.close();
       }
     });
   }
@@ -42,18 +43,18 @@ export class Modal extends Component<IModal> {
 
   private closeByEsc = (event: KeyboardEvent): void => {
     if (event.key === "Escape") {
-      this.events.emit("modal:close");
+      this.close();
     }
   };
 
   open(): void {
     this.container.classList.add("modal_active");
-    document.addEventListener('keydown', this.closeByEsc);
+    document.addEventListener("keydown", this.closeByEsc);
   }
 
   close(): void {
     this.container.classList.remove("modal_active");
-    document.removeEventListener('keydown', this.closeByEsc);
+    document.removeEventListener("keydown", this.closeByEsc);
     this.events.emit("modal:close");
   }
 }
