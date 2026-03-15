@@ -42,9 +42,10 @@ export class Buyer {
 
   clear(): void {
     this.payment = null;
-    this.email = '';
-    this.phone = '';
-    this.address = '';
+    this.email = "";
+    this.phone = "";
+    this.address = "";
+    this.events.emit("buyer:changed");
   }
 
   validate(): BuyerErrors {

@@ -83,11 +83,11 @@ function openModal(content: HTMLElement): void {
 
 // RENDER
 
-function renderBasket(): HTMLElement {
+function renderBasket(): void {
   const items = basketModel.getItems().map((item, index) => {
     const card = new CardBasket(cloneTemplate(cardBasketTemplate), {
       onDelete: () => {
-        basketModel.removeItem(item);
+        events.emit("basket:item-delete", { id: item.id });
       },
     });
 
@@ -98,18 +98,18 @@ function renderBasket(): HTMLElement {
     });
   });
 
-  return basketView.render({
+  basketView.render({
     items,
     total: basketModel.getTotalPrice(),
     disabled: basketModel.getItemsCount() === 0,
   });
 }
 
-function renderOrder(): HTMLElement {
+function renderOrder(): void {
   const data = customerModel.getData();
   const errors = customerModel.validate();
 
-  return formPayment.render({
+  formPayment.render({
     payment: data.payment,
     address: data.address,
     valid: !errors.payment && !errors.address,
@@ -117,11 +117,11 @@ function renderOrder(): HTMLElement {
   });
 }
 
-function renderContacts(): HTMLElement {
+function renderContacts(): void {
   const data = customerModel.getData();
   const errors = customerModel.validate();
 
-  return formContacts.render({
+  formContacts.render({
     email: data.email,
     phone: data.phone,
     valid: !errors.email && !errors.phone,
@@ -158,17 +158,13 @@ function renderPreview(): void {
   );
 }
 
-function renderSuccess(total: number): void {
-  openModal(successView.render({ total }));
-}
-
 // EVENTS
 
 events.on("catalog:changed", () => {
   const cards = productsModel.getProducts().map((product) => {
     const card = new CardCatalog(cloneTemplate(cardCatalogTemplate), {
       onClick: () => {
-        productsModel.setPreviewProduct(product);
+        events.emit("card:select", { id: product.id });
       },
     });
 
@@ -181,6 +177,16 @@ events.on("catalog:changed", () => {
   });
 
   gallery.render({ catalogElements: cards });
+});
+
+events.on<{ id: string }>("card:select", ({ id }) => {
+  const product = productsModel.getProductById(id);
+
+  if (!product) {
+    return;
+  }
+
+  productsModel.setPreviewProduct(product);
 });
 
 events.on("preview:changed", () => {
@@ -199,22 +205,30 @@ events.on("preview:toggle", () => {
   } else {
     basketModel.addItem(product);
   }
+
+  modal.close();
+});
+
+events.on<{ id: string }>("basket:item-delete", ({ id }) => {
+  const item = basketModel.getItems().find((product) => product.id === id);
+
+  if (!item) {
+    return;
+  }
+
+  basketModel.removeItem(item);
 });
 
 events.on("basket:open", () => {
-  openModal(renderBasket());
+  openModal(basketView.render());
 });
 
-events.on('basket:changed', () => {
+events.on("basket:changed", () => {
   header.render({
     counter: basketModel.getItemsCount(),
   });
 
   renderBasket();
-
-  if (productsModel.getPreviewProduct()) {
-    renderPreview();
-  }
 });
 
 events.on("buyer:changed", () => {
@@ -223,7 +237,7 @@ events.on("buyer:changed", () => {
 });
 
 events.on("basket:submit", () => {
-  openModal(renderOrder());
+  openModal(formPayment.render());
 });
 
 events.on<{ payment: TPayment }>("order.payment:change", ({ payment }) => {
@@ -235,7 +249,7 @@ events.on<{ value: string }>("order.address:change", ({ value }) => {
 });
 
 events.on("order:submit", () => {
-  openModal(renderContacts());
+  openModal(formContacts.render());
 });
 
 events.on<{ value: string }>("contacts.email:change", ({ value }) => {
@@ -247,7 +261,6 @@ events.on<{ value: string }>("contacts.phone:change", ({ value }) => {
 });
 
 events.on("contacts:submit", () => {
-
   const data = customerModel.getData();
   const items = basketModel.getItems();
 
@@ -261,10 +274,11 @@ events.on("contacts:submit", () => {
       total: basketModel.getTotalPrice(),
     })
     .then((result) => {
-      productsModel.setPreviewProduct(null);
       basketModel.clear();
       customerModel.clear();
-      renderSuccess(result.total);
+      productsModel.setPreviewProduct(null);
+
+      openModal(successView.render({ total: result.total }));
     })
     .catch((error: unknown) => {
       console.error("Ошибка оформления заказа:", error);
